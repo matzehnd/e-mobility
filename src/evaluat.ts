@@ -1,6 +1,7 @@
 import { SessionDistribution } from "./SessionDistribution";
 import { readMeasurementsFromFile } from "./readMeasurementsFromFile";
 import { readSessionsFromFile } from "./readSessionsFromFile";
+import { toWeekdayString } from "./toWeekdayString";
 import { writeFile } from "./writeFile";
 
 export const evaluate = async (chargerId: string) => {
@@ -40,8 +41,9 @@ export const evaluate = async (chargerId: string) => {
         "",
         part.isHT ? part.energy : "",
         part.isHT ? "" : part.energy,
-        part.weekday,
+        toWeekdayString(part.weekday),
       ]),
+    ["", "", "Kontrolle: Total - HT - NT", "HT (kWh)", "NT (kWh)"],
     [
       "",
       "",
@@ -60,13 +62,21 @@ export const evaluate = async (chargerId: string) => {
   ]);
   const res = [
     ...data.flat(1),
+    ["", "", "Total (kWh)", "HT (kWh)", "NT (kWh)"],
     ["", "", tot, totHT, totNT],
     [
       "",
       "",
+      "Kontrolle: Total - NT - HT (kWh)",
+      "HT * 0.1678 * 0.1701 => CHF",
+      "NT * 0.1281 * 0.0643 => CHF",
+    ],
+    [
+      "",
+      "",
       totHT + totNT - tot,
-      totHT * (0.0789 + 0.1285),
-      totNT * (0.0602 + 0.0486),
+      totHT * (0.1678 + 0.1701),
+      totNT * (0.1281 + 0.0643),
     ],
   ];
   await writeFile(res);
